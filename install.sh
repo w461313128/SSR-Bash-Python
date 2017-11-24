@@ -55,7 +55,7 @@ fi
 
 #Install SSR and SSR-Bash
 cd /usr/local/
-git clone https://github.com/FunctionClub/SSR-Bash-Python
+git clone https://github.com/w461313128/SSR-Bash-Python
 cp SSR-Bash-Python/shadowsocksr.zip /usr/local/shadowsocksr.zip
 chmod -R 777 /usr/local/SSR-Bash-Python/
 cd /usr/local/shadowsocksr

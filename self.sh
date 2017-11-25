@@ -182,7 +182,7 @@ if [[ $choice == 4 ]];then
 	echo "你在做什么？你真的这么狠心吗？"
 	sumdc
 	if [[ "$sv" == "$solve" ]];then
-		wget -q -N --no-check-certificate https://raw.githubusercontent.com/w461313128/SSR-Bash-Python/master/install.sh && bash install.sh uninstall
+		wget -q -N --no-check-certificate https://raw.githubusercontent.com/w461313128/SSR-Bash-Python/master/uninstall.sh
 		exit 0
 	else
 		echo "计算错误，正确结果为$solve"

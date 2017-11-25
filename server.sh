@@ -30,7 +30,81 @@ else
 echo "Does not support this OS, Please contact the author! "
 kill -9 $$
 fi
+servercheck(){
+	echo "你要做什么？"
+	echo ""
+	echo "1.启动服务"
+	echo "2.停止服务"
+	echo "3.重启服务"
+	echo "4.查看日志"
+	echo "5.重新配置"
+	while :; do echo
+		read -p "请选择： " serverch
+		[ -z "$serverch" ] && break
+		if [[ ! $serverch =~ ^[1-5]$ ]]; then
+			echo "输入错误! 请输入正确的数字!"
+		else
+			break
+		fi
+	done
 
+	if [[ $serverch == 1 ]];then
+		PID=$(ps -ef |grep -v grep | grep "bash" | grep "servercheck.sh" | grep "run" | awk '{print $2}')
+		if [[ ! -z ${PID} ]];then
+			echo "该服务已经启动，无需操作"
+			servercheck
+		else
+			nohup bash /usr/local/SSR-Bash-Python/servercheck.sh run 2>/dev/null &
+			echo "服务已启动"
+			servercheck
+		fi
+	fi
+	if [[ $serverch == 2 ]];then
+		PID=$(ps -ef |grep -v grep | grep "bash" | grep "servercheck.sh" | grep "run" | awk '{print $2}')
+		if [[ -z ${PID} ]];then
+			echo "该进程不存在,你无法停止服务"
+			servercheck
+		else
+			bash /usr/local/SSR-Bash-Python/servercheck.sh stop
+			servercheck
+		fi
+	fi
+	if [[ $serverch == 3 ]];then
+		PID=$(ps -ef |grep -v grep | grep "bash" | grep "servercheck.sh" | grep "run" | awk '{print $2}')
+		if [[ -z ${PID} ]];then
+			echo "该进程不存在,你无法重启服务"
+			servercheck
+		else
+			bash /usr/local/SSR-Bash-Python/servercheck.sh stop
+			nohup bash /usr/local/SSR-Bash-Python/servercheck.sh run 2>/dev/null &
+			echo "重启大成功"
+			servercheck
+		fi
+	fi
+	if [[ $serverch == 4 ]];then
+		if [[ -e /usr/local/SSR-Bash-Python/check.log ]];then
+			cat /usr/local/SSR-Bash-Python/check.log
+			servercheck
+		else
+			echo "没有找到配置文件！"
+			servercheck
+		fi
+	fi
+	if [[ $serverch == 5 ]];then
+		echo "你将丢弃所有的日志记录数据，并进行重新配置[Y/N]"
+		read yn
+		if [[ $yn == [yY] ]];then
+			PID=$(ps -ef |grep -v grep | grep "bash" | grep "servercheck.sh" | grep "run" | awk '{print $2}')
+			if [[ ! -z ${PID} ]];then
+				kill -9 ${PID}
+			fi
+			bash /usr/local/SSR-Bash-Python/servercheck.sh reconf
+			echo "完毕请启动服务"
+			echo ""
+			servercheck
+		fi
+	fi
+}
 echo ""
 echo "1.启动服务"
 echo "2.停止服务"
@@ -41,12 +115,17 @@ echo "6.修改DNS"
 echo "7.开启用户WEB面板"
 echo "8.关闭用户WEB面板"
 echo "9.开/关服务端开机启动"
+echo "10.服务器自动巡检系统"
+echo "11.服务器网络与IO测速"
 echo "直接回车返回上级菜单"
 
 while :; do echo
 	read -p "请选择： " serverc
 	[ -z "$serverc" ] && ssr && break
 	if [[ ! $serverc =~ ^[1-9]$ ]]; then
+		if [[ $serverc == 10 ]]||[[ $serverc == 11 ]]; then
+			break
+		fi
 		echo "输入错误! 请输入正确的数字!"
 	else
 		break	
@@ -99,6 +178,15 @@ if [[ $serverc == 6 ]];then
 fi
 
 if [[ $serverc == 7 ]];then
+	P_V=`python -V 2>&1 | awk '{print $2}'`
+	P_V1=`python -V 2>&1 | awk '{print $2}' | awk -F '.' '{print $1}'`
+	if [[ ${P_V1} == 3 ]];then
+		echo "你当前的python版本不支持此功能"
+		echo "当前版本：${P_V} ,请降级至2.x版本"
+		echo ""
+		bash /usr/local/SSR-Bash-Python/server.sh
+		exit 1
+	fi
 	while :; do echo
 		read -p "请输入自定义的WEB端口：" cgiport
 		if [[ "$cgiport" =~ ^(-?|\+?)[0-9]+(\.?[0-9]+)?$ ]];then
@@ -132,6 +220,7 @@ if [[ $serverc == 7 ]];then
 	#Get IP
 	ip=`curl -m 10 -s http://members.3322.org/dyndns/getip`
 	clear
+	chmod -R 777 /usr/local/SSR-Bash-Python
 	cd /usr/local/SSR-Bash-Python/www
 	screen -dmS webcgi python -m CGIHTTPServer $cgiport
 	echo "WEB服务启动成功，请访问 http://${ip}:$cgiport"
@@ -187,3 +276,12 @@ bash /usr/local/shadowsocksr/logrun.sh
 	bash /usr/local/SSR-Bash-Python/server.sh
 fi
 
+if [[ $serverc == 10 ]];then
+	servercheck
+	bash /usr/local/SSR-Bash-Python/server.sh
+fi	
+
+if [[ $serverc == 11 ]];then
+        bash /usr/local/SSR-Bash-Python/speed_test.sh
+	bash /usr/local/SSR-Bash-Python/server.sh
+fi

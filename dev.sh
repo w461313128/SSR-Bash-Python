@@ -44,14 +44,16 @@ echo "0.退出程序"
 while :; do echo
 	read -p "请选择： " devc
 	[ -z "$devc" ] && ssr && break
-	if [[ ! $devc =~ ^[1-8]$ ]]; then
+	if [[ ! $devc =~ ^[0-8]$ ]]; then
 		echo "输入错误! 请输入正确的数字!"
-	else if [[ $devc == 0 ]];then
-	exit 0
 	else
 		break	
 	fi
 done
+
+if [[ $choice == 0 ]];then
+	exit 0
+fi
 
 if [[ $devc == 1 ]];then
 	rm -rf /usr/local/bin/ssr

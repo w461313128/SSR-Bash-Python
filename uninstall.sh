@@ -10,4 +10,5 @@ bash /usr/local/shadowsocksr/stop.sh
 #Delete Files
 rm -rf /usr/local/SSR-Bash-Python
 rm -rf /usr/local/shadowsocksr
+rm -rf /usr/local/shadowsocksr.zip
 rm -rf /usr/local/bin/ssr

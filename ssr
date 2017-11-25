@@ -36,6 +36,7 @@ while :; do echo
 done
 if [[ $choice == 0 ]];then
 	exit 0
+fi	
 if [[ $choice == 1 ]];then
 	bash /usr/local/SSR-Bash-Python/server.sh
 fi
